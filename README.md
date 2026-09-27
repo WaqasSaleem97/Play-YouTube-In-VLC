@@ -1,0 +1,183 @@
+# Play YouTube Videos in VLC on Windows
+
+A PowerShell utility that asks for a YouTube URL, resolves the available media streams with [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), and opens the video automatically in [VLC media player](https://www.videolan.org/vlc/download-windows.html).
+
+The script also handles YouTube URLs that do not include `https://`, such as:
+
+```text
+www.youtube.com/watch?v=qERbsI55UmU
+```
+
+## Features
+
+- Accepts full, shortened, mobile, music, embedded, and scheme-less YouTube URLs.
+- Adds `https://` automatically when the scheme is missing.
+- Rejects non-YouTube URLs.
+- Detects `yt-dlp`, Deno, and FFmpeg.
+- Installs only the missing dependencies through WinGet.
+- Refreshes `PATH` internally, so a terminal restart is normally unnecessary.
+- Locates VLC through `PATH`, `Program Files`, or `Program Files (x86)`.
+- Prefers H.264 video and AAC audio up to 1080p for broad VLC compatibility.
+- Handles YouTube videos whose video and audio are delivered as separate streams.
+- Streams directly in VLC without intentionally saving the complete video file.
+
+## Requirements
+
+- Windows 10 or Windows 11
+- Windows PowerShell 5.1 or PowerShell 7+
+- [VLC media player](https://www.videolan.org/vlc/download-windows.html)
+- [WinGet](https://learn.microsoft.com/windows/package-manager/winget/) for automatic dependency installation
+
+VLC must already be installed. If a required command-line dependency is missing, the script installs it using these exact WinGet package IDs:
+
+| Component | WinGet package ID |
+| --- | --- |
+| yt-dlp | `yt-dlp.yt-dlp` |
+| Deno | `DenoLand.Deno` |
+| FFmpeg | `yt-dlp.FFmpeg` |
+
+## Repository Files
+
+- `Play-YouTube-In-VLC.ps1` — main PowerShell script
+- `README.md` — setup and usage documentation
+
+## Quick Start
+
+1. Download or clone this repository.
+2. Install VLC from the [official VideoLAN website](https://www.videolan.org/vlc/download-windows.html).
+3. Open PowerShell in the repository folder.
+4. Run:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Play-YouTube-In-VLC.ps1"
+```
+
+5. Enter a YouTube URL when prompted:
+
+```text
+Enter the YouTube video URL: www.youtube.com/watch?v=qERbsI55UmU
+```
+
+The script will resolve the video and audio streams and then launch VLC automatically.
+
+## Supported URL Examples
+
+```text
+https://www.youtube.com/watch?v=VIDEO_ID
+www.youtube.com/watch?v=VIDEO_ID
+youtube.com/watch?v=VIDEO_ID
+https://youtu.be/VIDEO_ID
+youtu.be/VIDEO_ID
+https://m.youtube.com/watch?v=VIDEO_ID
+https://music.youtube.com/watch?v=VIDEO_ID
+https://www.youtube-nocookie.com/embed/VIDEO_ID
+```
+
+## How It Works
+
+1. Reads and normalizes the entered URL.
+2. Confirms that the host belongs to YouTube or `youtu.be`.
+3. Finds WinGet and checks the required command-line tools.
+4. Installs any missing `yt-dlp`, Deno, or FFmpeg package.
+5. Uses `yt-dlp` to obtain temporary direct media-stream URLs.
+6. Opens a combined stream directly, or supplies the separate audio URL to VLC through its `input-slave` option.
+
+The format selector is:
+
+```text
+bv[vcodec~='^avc1'][height<=1080]+ba[acodec~='^mp4a']/bv[height<=1080]+ba/b[height<=1080]/b
+```
+
+Its priority is:
+
+1. H.264 video up to 1080p with AAC audio.
+2. Any video up to 1080p with the best available audio.
+3. A combined video-and-audio format up to 1080p.
+4. Any available combined format.
+
+## Updating yt-dlp
+
+YouTube changes its playback system regularly. If stream extraction stops working, update yt-dlp:
+
+```powershell
+winget upgrade --id yt-dlp.yt-dlp --exact
+```
+
+You can verify the installed version with:
+
+```powershell
+yt-dlp --version
+```
+
+## Troubleshooting
+
+### PowerShell blocks the script
+
+Use the Quick Start command, which applies `ExecutionPolicy Bypass` only to that PowerShell process:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Play-YouTube-In-VLC.ps1"
+```
+
+### VLC was not found
+
+Install the desktop version of VLC from VideoLAN. The script checks:
+
+```text
+C:\Program Files\VideoLAN\VLC\vlc.exe
+C:\Program Files (x86)\VideoLAN\VLC\vlc.exe
+```
+
+It also accepts `vlc.exe` from `PATH`.
+
+### WinGet was not found
+
+Install or update **App Installer** from the Microsoft Store, reopen PowerShell, and run:
+
+```powershell
+winget --version
+```
+
+See Microsoft's [WinGet documentation](https://learn.microsoft.com/windows/package-manager/winget/).
+
+### The video buffers too much
+
+The script already limits normal playback to 1080p. To prefer 720p, edit `Play-YouTube-In-VLC.ps1` and replace every occurrence of:
+
+```text
+height<=1080
+```
+
+with:
+
+```text
+height<=720
+```
+
+### Private or age-restricted videos
+
+The current script does not import browser cookies. Videos that require authentication, age verification, membership, payment, or special regional access may fail even when they play in your signed-in browser.
+
+### Inspect the available formats
+
+For diagnostic purposes, run:
+
+```powershell
+yt-dlp --no-playlist --list-formats "YOUTUBE_URL"
+```
+
+## Notes
+
+- Direct stream URLs generated by YouTube are temporary, so the script resolves them each time it runs.
+- Existing dependencies are not reinstalled automatically.
+- The script installs missing command-line dependencies but does not install VLC.
+- Use the script only for content you are authorized to access, and follow YouTube's terms and applicable law.
+
+## References
+
+- [yt-dlp installation guide](https://github.com/yt-dlp/yt-dlp/wiki/Installation)
+- [yt-dlp format-selection documentation](https://github.com/yt-dlp/yt-dlp#format-selection)
+- [Microsoft WinGet install command](https://learn.microsoft.com/windows/package-manager/winget/install)
+- [Microsoft WinGet upgrade command](https://learn.microsoft.com/windows/package-manager/winget/upgrade)
+- [Official VLC download for Windows](https://www.videolan.org/vlc/download-windows.html)
+- [VLC source and changelog](https://github.com/videolan/vlc)
