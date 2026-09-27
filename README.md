@@ -8,6 +8,31 @@ The script also handles YouTube URLs that do not include `https://`, such as:
 www.youtube.com/watch?v=qERbsI55UmU
 ```
 
+## Run with One Command
+
+After installing [VLC media player](https://www.videolan.org/vlc/download-windows.html), open **PowerShell**, paste the following command, and press **Enter**:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/WaqasSaleem97/Play-YouTube-In-VLC/main/Play-YouTube-In-VLC.ps1' | Invoke-Expression"
+```
+
+You do **not** need to download the `.ps1` file manually. The command retrieves the current script directly from this repository and runs it in a separate PowerShell process. The script then:
+
+1. Prompts you to enter a YouTube URL.
+2. Adds `https://` automatically when it is missing.
+3. Installs yt-dlp, Deno, and FFmpeg through WinGet if they are missing.
+4. Resolves compatible YouTube video and audio streams.
+5. Opens the video automatically in VLC.
+
+Example prompt:
+
+```text
+Enter the YouTube video URL: www.youtube.com/watch?v=qERbsI55UmU
+```
+
+> [!IMPORTANT]
+> The one-command launcher executes the current contents of [`Play-YouTube-In-VLC.ps1`](https://github.com/WaqasSaleem97/Play-YouTube-In-VLC/blob/main/Play-YouTube-In-VLC.ps1). Review the script before running it, and never change the command to an untrusted repository URL. Microsoft recommends using `Invoke-Expression` cautiously because it runs the supplied text as a command.
+
 ## Features
 
 - Accepts full, shortened, mobile, music, embedded, and scheme-less YouTube URLs.
@@ -41,22 +66,30 @@ VLC must already be installed. If a required command-line dependency is missing,
 - `Play-YouTube-In-VLC.ps1` — main PowerShell script
 - `README.md` — setup and usage documentation
 
-## Quick Start
+## Run a Downloaded Copy Instead
 
-1. Download or clone this repository.
+If you prefer to inspect and keep the script locally:
+
+1. Download or clone this repository:
+
+   ```powershell
+   git clone https://github.com/WaqasSaleem97/Play-YouTube-In-VLC.git
+   cd Play-YouTube-In-VLC
+   ```
+
 2. Install VLC from the [official VideoLAN website](https://www.videolan.org/vlc/download-windows.html).
 3. Open PowerShell in the repository folder.
 4. Run:
 
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Play-YouTube-In-VLC.ps1"
-```
+   ```powershell
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Play-YouTube-In-VLC.ps1"
+   ```
 
 5. Enter a YouTube URL when prompted:
 
-```text
-Enter the YouTube video URL: www.youtube.com/watch?v=qERbsI55UmU
-```
+   ```text
+   Enter the YouTube video URL: www.youtube.com/watch?v=qERbsI55UmU
+   ```
 
 The script will resolve the video and audio streams and then launch VLC automatically.
 
@@ -113,7 +146,7 @@ yt-dlp --version
 
 ### PowerShell blocks the script
 
-Use the Quick Start command, which applies `ExecutionPolicy Bypass` only to that PowerShell process:
+Use either documented launch command. `ExecutionPolicy Bypass` applies to the newly started PowerShell process:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\Play-YouTube-In-VLC.ps1"
@@ -179,5 +212,8 @@ yt-dlp --no-playlist --list-formats "YOUTUBE_URL"
 - [yt-dlp format-selection documentation](https://github.com/yt-dlp/yt-dlp#format-selection)
 - [Microsoft WinGet install command](https://learn.microsoft.com/windows/package-manager/winget/install)
 - [Microsoft WinGet upgrade command](https://learn.microsoft.com/windows/package-manager/winget/upgrade)
+- [Microsoft Invoke-RestMethod documentation](https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/invoke-restmethod)
+- [Microsoft Invoke-Expression documentation](https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/invoke-expression)
+- [Microsoft guidance for avoiding unsafe Invoke-Expression usage](https://learn.microsoft.com/powershell/utility-modules/psscriptanalyzer/rules/avoidusinginvokeexpression)
 - [Official VLC download for Windows](https://www.videolan.org/vlc/download-windows.html)
 - [VLC source and changelog](https://github.com/videolan/vlc)
