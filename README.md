@@ -13,7 +13,7 @@ www.youtube.com/watch?v=qERbsI55UmU
 After installing [VLC media player](https://www.videolan.org/vlc/download-windows.html), open **PowerShell**, paste the following command, and press **Enter**:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-RestMethod 'https://raw.githubusercontent.com/WaqasSaleem97/Play-YouTube-In-VLC/main/Play-YouTube-In-VLC.ps1' | Invoke-Expression"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Expression ((Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/WaqasSaleem97/Play-YouTube-In-VLC/main/Play-YouTube-In-VLC.ps1') -join [Environment]::NewLine)"
 ```
 
 You do **not** need to download the `.ps1` file manually. The command retrieves the current script directly from this repository and runs it in a separate PowerShell process. The script then:
